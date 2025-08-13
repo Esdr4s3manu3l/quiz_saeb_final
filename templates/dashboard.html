@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Principal</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --success-color: #28a745;
+            --success-hover: #218838;
+            --admin-color: #6f42c1;
+            --admin-hover: #5a32a3;
+            --bg-color: #f0f7ff;
+            --card-bg: white;
+            --text-color: #333;
+            --light-text: #555;
+        }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .dashboard-container { text-align: center; background: var(--card-bg); padding: 40px 50px; border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); animation: fadeIn 0.5s ease-in-out; }
+        h1 { color: var(--text-color); font-size: 2.2rem; margin-top: 0; }
+        h1 span { color: var(--primary-color); font-weight: 700; }
+        p { font-weight: 400; color: var(--light-text); margin-top: 0; margin-bottom: 40px; font-size: 1.1rem; }
+        .actions { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+        .action-card {
+            background-color: var(--primary-color);
+            color: white; padding: 25px 40px; border-radius: 10px; text-decoration: none; font-size: 1.2rem; font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; gap: 10px;
+            opacity: 0; animation: slideInUp 0.5s ease-out forwards;
+        }
+        .action-card:nth-child(1) { animation-delay: 0.2s; }
+        .action-card:nth-child(2) { animation-delay: 0.3s; }
+        .action-card:nth-child(3) { animation-delay: 0.4s; }
+        .action-card:hover { transform: translateY(-8px); box-shadow: 0 12px 25px rgba(0, 123, 255, 0.3); }
+        .action-card.results { background-color: var(--success-color); }
+        .action-card.results:hover { box-shadow: 0 12px 25px rgba(40, 167, 69, 0.3); }
+        .action-card.admin-rank { background-color: var(--admin-color); }
+        .action-card.admin-rank:hover { box-shadow: 0 12px 25px rgba(111, 66, 193, 0.3); }
+        .action-card svg { width: 40px; height: 40px; }
+        .main-logout { margin-top: 30px; font-size: 0.9rem; }
+        .main-logout a { color: var(--light-text); text-decoration: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Bem-vindo(a) de volta, <span>{{ session.username }}</span>!</h1>
+        <p>O que você gostaria de fazer agora?</p>
+        <div class="actions">
+            <a href="{{ url_for('escolher_quiz') }}" class="action-card">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="white"><path d="M490 288l-23.2-23.2c-5-5-11.8-7.8-19-7.8H320V128h128c13.3 0 24-10.7 24-24V24c0-13.3-10.7-24-24-24H24C10.7 0 0 10.7 0 24v80c0 13.3 10.7 24 24 24h128v129H24c-7.2 0-14 2.8-19 7.8L1.8 288c-11.2 11.2-4.2 32 12.7 32H160v128H32c-13.3 0-24 10.7-24 24v80c0 13.3 10.7 24 24 24h456c13.3 0 24-10.7 24-24v-80c0-13.3-10.7-24-24-24H352V320h125.5c17 0 24-20.8 12.8-32z"/></svg>
+                Jogar
+            </a>
+            <a href="{{ url_for('meus_resultados') }}" class="action-card results">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="white"><path d="M16 160h80v192H16zm96 128h80v64h-80zm96-160h80v224h-80zm96-96h80v320h-80zM496 0H16C7.2 0 0 7.2 0 16v480c0 8.8 7.2 16 16 16h480c8.8 0 16-7.2 16-16V16c0-8.8-7.2-16-16-16z"/></svg>
+                Meus Resultados
+            </a>
+            {% if session.is_admin %}
+            <a href="{{ url_for('ranking_geral') }}" class="action-card admin-rank">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="white"><path d="M309 106c-4.7-25.5-26.2-45.7-53-45.7s-48.3 20.2-53 45.7L164.6 240H24c-13.3 0-24 10.7-24 24v32c0 13.3 10.7 24 24 24h140.6l38.4 134.3c4.7 25.5 26.2 45.7 53 45.7s48.3-20.2 53-45.7L311.4 320H452c13.3 0 24-10.7 24-24v-32c0-13.3-10.7-24-24-24H311.4l-38.4-134.3zM544 240c-17.7 0-32 14.3-32 32s14.3 32 32 32s32-14.3 32-32s-14.3-32-32-32z"/></svg>
+                Ranking Geral
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="main-logout">
+        <a href="{{ url_for('logout') }}">Sair da conta</a>
+    </div>
+</body>
+</html>

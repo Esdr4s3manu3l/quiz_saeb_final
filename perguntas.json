@@ -1,0 +1,47 @@
+{
+    "portugues": [
+        {
+            "poema": "ONDA GRANDE\nSe me conheces o bastante,\nSabes que sou pura poesia.\nMinha forma de sentir é imensa,\nEntorpecente como a maresia.\nÉ preciso de muita coragem\nPra adentrar a minha melancolia.\nMas, se tem medo de onda grande,\nCertamente terá medo de mim.\nÁgua batendo na coxa não me basta,\nO que me preenche é o ir até o fim.\n\nMarina Vasconcelos (Setembro de 2023)",
+            "pergunta": "O que melhor descreve o eu lírico do poema 'Onda Grande'?",
+            "opcoes": [
+                "Alguém intenso e profundo como o mar",
+                "Alguém calmo e sereno como um lago"
+            ],
+            "resposta_correta": "Alguém intenso e profundo como o mar"
+        },
+        {
+            "pergunta": "Qual das seguintes palavras é um ditongo crescente?",
+            "opcoes": [
+                "Pai",
+                "Mãe",
+                "História",
+                "Saudade"
+            ],
+            "resposta_correta": "História"
+        }
+    ],
+    "matematica": [
+        {
+            "pergunta": "Qual é a solução para a seguinte equação de segundo grau?",
+            "formula": "$$x^2 - 5x + 6 = 0$$",
+            "opcoes": [
+                "x=1 e x=6",
+                "x=2 e x=3",
+                "x=-2 e x=-3",
+                "Não possui raízes reais"
+            ],
+            "resposta_correta": "x=2 e x=3"
+        },
+        {
+            "pergunta": "Se um triângulo tem lados medindo 3cm, 4cm e 5cm, qual é a sua área?",
+            "imagem": "images/triangulo_retangulo.png",
+            "opcoes": [
+                "6 cm²",
+                "7.5 cm²",
+                "10 cm²",
+                "12 cm²"
+            ],
+            "resposta_correta": "6 cm²"
+        }
+    ]
+}

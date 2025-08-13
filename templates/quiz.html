@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Dinâmico</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        :root {
+            --primary-color: #007bff; --success-color: #28a745; --danger-color: #dc3545;
+            --bg-color: #f0f7ff; --card-bg: white; --text-color: #333; --light-text: #555;
+        }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box;}
+        .quiz-container { background-color: var(--card-bg); border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); width: 100%; max-width: 700px; padding: 30px 40px; text-align: center; }
+        #start-screen h1, #end-screen h1 { color: #0056b3; margin-bottom: 20px; }
+        #start-screen button { background-color: var(--primary-color); color: white; border: none; border-radius: 8px; padding: 15px 30px; font-size: 1.1rem; cursor: pointer; transition: background-color 0.2s; }
+        #start-screen button:hover { background-color: #0056b3; }
+        #quiz-screen { display: none; }
+        
+        .progress-bar-container { width: 100%; background-color: #e9ecef; border-radius: 10px; height: 10px; margin-bottom: 20px; }
+        #progress-bar { width: 0%; height: 100%; background-color: var(--primary-color); border-radius: 10px; transition: width 0.4s ease-in-out; }
+
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        #question-counter { font-size: 1rem; font-weight: 600; color: var(--light-text); }
+        #timer { font-size: 1.5rem; font-weight: 700; color: var(--danger-color); }
+        
+        .context-container { animation: fadeIn 0.5s; }
+        #poem-container { background-color: #f8f9fa; border-left: 4px solid var(--primary-color); padding: 15px; margin-bottom: 20px; text-align: left; font-family: 'Courier New', Courier, monospace; font-size: 0.95rem; white-space: pre-wrap; display: none; }
+        #formula-container { font-size: 1.5rem; margin: 20px 0; padding: 10px; display: none; }
+        #image-container { margin-bottom: 20px; display: none; }
+        #quiz-image { max-width: 100%; max-height: 300px; border-radius: 10px; object-fit: contain; }
+        
+        #question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; min-height: 50px; animation: fadeIn 0.5s; }
+        
+        #options-container { animation: fadeIn 0.5s; }
+        #options-container button { display: block; width: 100%; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 10px; text-align: left; font-size: 1rem; font-family: 'Poppins', sans-serif; cursor: pointer; transition: all 0.2s; }
+        #options-container button:hover:not([disabled]) { background-color: #e9ecef; transform: scale(1.02); }
+        #options-container button[disabled].correct { background-color: var(--success-color); border-color: #20893a; color: white; font-weight: bold; animation: tada 0.8s; }
+        #options-container button[disabled].incorrect { background-color: var(--danger-color); border-color: #b82a39; color: white; font-weight: bold; animation: shake 0.5s; }
+        
+        #end-screen { display: none; }
+        #end-screen p { margin-top: 20px; }
+        #end-screen a { text-decoration: none; color: var(--primary-color); font-weight: 600; margin: 0 10px; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes tada { from { transform: scale3d(1, 1, 1); } 10%, 20% { transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg); } 30%, 50%, 70%, 90% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg); } 40%, 60%, 80% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg); } to { transform: scale3d(1, 1, 1); } }
+        @keyframes shake { from, to { transform: translate3d(0, 0, 0); } 10%, 30%, 50%, 70%, 90% { transform: translate3d(-10px, 0, 0); } 20%, 40%, 60%, 80% { transform: translate3d(10px, 0, 0); } }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div id="start-screen">
+            <h1>Bem-vindo(a) ao Quiz, {{ session.username }}!</h1>
+            <p>Você terá 30 segundos para responder cada pergunta. Preparado(a)?</p>
+            <button id="start-btn">Começar!</button>
+        </div>
+        <div id="quiz-screen">
+            <div class="progress-bar-container"><div id="progress-bar"></div></div>
+            <div class="quiz-header">
+                <span id="question-counter"></span>
+                <div id="timer">30</div>
+            </div>
+            <div class="context-container">
+                <pre id="poem-container"></pre>
+                <div id="formula-container"></div>
+                <div id="image-container"><img id="quiz-image" src="" alt="Imagem da pergunta"></div>
+            </div>
+            <div id="question-text"></div>
+            <div id="options-container"></div>
+        </div>
+        <div id="end-screen">
+            <h1>Quiz Finalizado!</h1>
+            <h2 id="final-score"></h2>
+            <p>
+                <a href="{{ url_for('escolher_quiz') }}">Escolher Outro Quiz</a> | 
+                <a href="{{ url_for('meus_resultados') }}">Ver Meu Histórico</a>
+                {% if session.is_admin %} | <a href="{{ url_for('ranking_geral') }}">Ranking Geral</a> {% endif %}
+            </p>
+        </div>
+    </div>
+    <script>
+        const perguntas = {{ perguntas | tojson }};
+        const categoriaAtual = "{{ categoria }}";
+        
+        const progressBar = document.getElementById('progress-bar');
+        // ... (resto das constantes de elementos)
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const endScreen = document.getElementById('end-screen');
+        const startBtn = document.getElementById('start-btn');
+        const questionCounterEl = document.getElementById('question-counter');
+        const timerEl = document.getElementById('timer');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const finalScoreEl = document.getElementById('final-score');
+        const poemContainer = document.getElementById('poem-container');
+        const formulaContainer = document.getElementById('formula-container');
+        const imageContainer = document.getElementById('image-container');
+        const quizImage = document.getElementById('quiz-image');
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        const TIME_PER_QUESTION = 30;
+
+        startBtn.addEventListener('click', startQuiz);
+
+        function startQuiz() {
+            startScreen.style.display = 'none';
+            endScreen.style.display = 'none';
+            quizScreen.style.display = 'block';
+            currentQuestionIndex = 0;
+            score = 0;
+            showNextQuestion();
+        }
+
+        function showNextQuestion() {
+            resetState();
+            if (currentQuestionIndex < perguntas.length) {
+                updateProgressBar();
+                const question = perguntas[currentQuestionIndex];
+                
+                if (question.poema) { poemContainer.textContent = question.poema; poemContainer.style.display = 'block'; }
+                if (question.formula) { formulaContainer.innerHTML = question.formula; formulaContainer.style.display = 'block'; }
+                if (question.imagem) { quizImage.src = '{{ url_for('static', filename='') }}' + question.imagem; imageContainer.style.display = 'block'; }
+                
+                questionCounterEl.textContent = `Pergunta ${currentQuestionIndex + 1} de ${perguntas.length}`;
+                questionTextEl.textContent = question.pergunta;
+
+                question.opcoes.forEach(opcao => {
+                    const button = document.createElement('button');
+                    button.innerHTML = opcao;
+                    button.addEventListener('click', selectAnswer);
+                    optionsContainerEl.appendChild(button);
+                });
+                
+                if (window.MathJax) { MathJax.typesetPromise([quizScreen]).catch((err) => console.log('MathJax error: ', err)); }
+                startTimer();
+            } else {
+                endQuiz();
+            }
+        }
+        
+        function updateProgressBar() {
+            const progressPercentage = ((currentQuestionIndex) / perguntas.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+        
+        function selectAnswer(e) {
+            clearInterval(timer);
+            const selectedButton = e ? e.target : null;
+            const correctAnswer = perguntas[currentQuestionIndex].resposta_correta;
+
+            if (selectedButton && selectedButton.textContent === correctAnswer) {
+                score++;
+                selectedButton.classList.add('correct');
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            } else if (selectedButton) {
+                selectedButton.classList.add('incorrect');
+            }
+            
+            Array.from(optionsContainerEl.children).forEach(button => {
+                if (button.textContent === correctAnswer) { button.classList.add('correct'); }
+                button.disabled = true;
+            });
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                showNextQuestion();
+            }, 2000);
+        }
+
+        function endQuiz() {
+            progressBar.style.width = '100%';
+            quizScreen.style.display = 'none';
+            endScreen.style.display = 'block';
+            
+            let finalScore = 0;
+            const total = perguntas.length;
+            finalScoreEl.textContent = `Sua pontuação final: ${score} de ${total}`;
+            
+            // Animação de contagem do score
+            let counter = 0;
+            if (score > 0) {
+                const countUpAnimation = setInterval(() => {
+                    counter++;
+                    finalScoreEl.textContent = `Sua pontuação final: ${counter} de ${total}`;
+                    if(counter >= score) clearInterval(countUpAnimation);
+                }, 50);
+            }
+            
+            saveResultToServer();
+        }
+
+        // ... (resto das funções como startTimer, resetState, saveResultToServer continuam iguais) ...
+        function startTimer() {
+            let timeLeft = TIME_PER_QUESTION;
+            timerEl.textContent = timeLeft;
+            timerEl.style.color = '#dc3545';
+            timer = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                if (timeLeft <= 10) { timerEl.style.color = '#ff0000'; }
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    selectAnswer(null);
+                }
+            }, 1000);
+        }
+        function resetState() {
+            clearInterval(timer);
+            poemContainer.style.display = 'none';
+            poemContainer.textContent = '';
+            formulaContainer.style.display = 'none';
+            formulaContainer.innerHTML = '';
+            imageContainer.style.display = 'none';
+            quizImage.src = '';
+            while (optionsContainerEl.firstChild) {
+                optionsContainerEl.removeChild(optionsContainerEl.firstChild);
+            }
+        }
+        function saveResultToServer() {
+            const resultado = {
+                acertos: score,
+                erros: perguntas.length - score,
+                total_perguntas: perguntas.length,
+                categoria: categoriaAtual
+            };
+            fetch("{{ url_for('salvar_resultado') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(resultado)
+            })
+            .then(response => response.json())
+            .then(data => console.log('Resultado salvo:', data.message))
+            .catch(error => console.error('Erro ao salvar resultado:', error));
+        }
+    </script>
+</body>
+</html>

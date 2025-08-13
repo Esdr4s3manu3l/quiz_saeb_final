@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking Geral</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
+        h1 { text-align: center; color: #0056b3; }
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid #ddd; border-radius: 8px; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; white-space: nowrap; }
+        td:nth-child(3) { text-transform: capitalize; }
+        th { background-color: #007bff; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .back-link { display: block; text-align: center; margin-top: 20px; font-weight: 600; }
+        a { color: #007bff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ranking Geral - Melhores Pontuações</h1>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pos.</th>
+                        <th>Usuário</th>
+                        <th>Matéria</th>
+                        <th>Pontuação</th>
+                        <th>Data do Recorde</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for resultado in ranking %}
+                    <tr>
+                        <td>{{ loop.index }}º</td>
+                        <td>{{ resultado.username }}</td>
+                        <td>{{ resultado.categoria }}</td>
+                        <td>{{ resultado.melhor_pontuacao }} / {{ resultado.total_perguntas }}</td>
+                        <td>{{ resultado.data_tentativa.strftime('%d/%m/%Y') }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5">Nenhum resultado encontrado no sistema.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <a href="{{ url_for('escolher_quiz') }}" class="back-link">Voltar para a Escolha de Quiz</a>
+    </div>
+</body>
+</html>

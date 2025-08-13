@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - LIA Quiz</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+    <style>
+        :root {
+            --primary-color: #45B88D; --primary-hover: #379D78; --bg-color: #E6F3FF;
+            --card-bg: white; --text-color: #0A1C3B; --light-text: #555; --border-color: #ddd;
+            --danger-color: #dc3545; --success-color: #28a745;
+        }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: var(--bg-color);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0;
+            overflow: hidden; 
+            position: relative;
+        }
+        body::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            /* AJUSTE AQUI: Caminho para a imagem de fundo */
+            background-image: url("{{ url_for('static', filename='image_c44a2d.png') }}");
+            background-repeat: repeat; opacity: 0.1; z-index: 0;
+        }
+        .login-container { 
+            padding: 40px; background: var(--card-bg); border-radius: 15px; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px;
+            text-align: center; animation: fadeIn 0.6s ease-in-out; position: relative; z-index: 1;
+        }
+        .logo { width: 150px; height: auto; margin-bottom: 20px; }
+        h1 { color: var(--text-color); font-weight: 700; margin-top: 0; margin-bottom: 10px; }
+        p.subtitle { color: var(--light-text); margin-bottom: 30px; }
+        form { margin-top: 1.5rem; }
+        .form-group { margin-bottom: 1.2rem; text-align: left; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--light-text); }
+        input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-family: 'Poppins', sans-serif; font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
+        input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(69, 184, 141, 0.2); }
+        .button-container { width: 100%; padding: 14px; border: none; background-color: var(--primary-color); color: white; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 1rem; transition: background-color 0.2s, transform 0.2s; display: flex; align-items: center; justify-content: center; }
+        .button-container:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
+        .button-container img { width: 30px; height: 30px; margin-right: 10px; border-radius: 50%; }
+        .flash-message { padding: 1rem; margin-top: 1.5rem; border-radius: 8px; color: #fff; font-size: 0.9rem; font-weight: 500; text-align: center; animation: slideInUp 0.5s ease-out; }
+        .flash-message.danger { background-color: var(--danger-color); }
+        .flash-message.success { background-color: var(--success-color); }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="{{ url_for('static', filename='v5.png') }}" alt="Logo" class="logo">
+        
+        <h1>Bem-vindo(a)!</h1>
+        <p class="subtitle">Faça o login para iniciar o quiz.</p>
+        
+        <form action="{{ url_for('login_or_register') }}" method="POST">
+            <div class="form-group">
+                <label for="username">Nome de Usuário:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="button-container">
+                <img src="{{ url_for('static', filename='LIA.png') }}" alt="Avatar LIA">
+                <span>VAMOS JOGAR</span>
+            </button>
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>
